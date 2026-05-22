@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study Timer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">
+            <i class="fa-solid fa-stopwatch"></i>
+            <span>SmartTimer</span>
+        </div>
+        <div class="nav-links">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <a href="login.html" class="btn btn-outline">Login</a>
+            <a href="register.html" class="btn btn-primary">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="timer-container">
+            <div class="timer-modes">
+                <button class="timer-mode-btn active" data-mode="pomodoro">Pomodoro</button>
+                <button class="timer-mode-btn" data-mode="shortBreak">Short Break</button>
+                <button class="timer-mode-btn" data-mode="longBreak">Long Break</button>
+                <button class="btn btn-outline" id="settingsBtn" style="padding: 0.4rem 0.6rem; margin-left: auto;" title="Timer Settings"><i class="fa-solid fa-gear"></i></button>
+            </div>
+
+            <div class="circular-progress" id="progressCircle">
+                <div class="time-display" id="timeDisplay">25:00</div>
+            </div>
+
+            <div class="timer-controls">
+                <button class="btn btn-primary" id="startBtn"><i class="fa-solid fa-play"></i> Start</button>
+                <button class="btn btn-outline" id="pauseBtn" style="display:none;"><i class="fa-solid fa-pause"></i> Pause</button>
+                <button class="btn btn-danger" id="resetBtn"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            </div>
+
+            <button class="btn btn-outline mt-1" id="focusModeBtn" style="width: 100%;">
+                <i class="fa-solid fa-expand"></i> Enter Focus Mode
+            </button>
+
+            <div class="quote-display" id="quoteDisplay">
+                "Stay focused, ignore the distractions, and you will accomplish your goals much faster."
+            </div>
+        </div>
+
+        <div class="ai-suggestions glass-card">
+            <div class="ai-header">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Suggestion
+            </div>
+            <p id="aiText">Loading suggestion...</p>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content glass-card">
+                <div class="modal-header">
+                    <h3>Timer Settings</h3>
+                    <button class="close-modal" id="closeSettingsBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="pomodoroSetting">Pomodoro (minutes)</label>
+                        <input type="number" id="pomodoroSetting" class="form-input" min="1" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label for="shortBreakSetting">Short Break (minutes)</label>
+                        <input type="number" id="shortBreakSetting" class="form-input" min="1" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="longBreakSetting">Long Break (minutes)</label>
+                        <input type="number" id="longBreakSetting" class="form-input" min="1" value="15">
+                    </div>
+                    <button class="btn btn-primary mt-1" id="saveSettingsBtn" style="width: 100%;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

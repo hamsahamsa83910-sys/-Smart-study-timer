@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Smart Study Timer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">
+            <i class="fa-solid fa-stopwatch"></i>
+            <a href="index.html" style="color: inherit; text-decoration: none;"><span>SmartTimer</span></a>
+        </div>
+        <div class="nav-links">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <a href="login.html" class="btn btn-outline">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="auth-container glass-card">
+            <h2 class="text-center mb-2">Create an Account</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="regName">Full Name</label>
+                    <input type="text" id="regName" class="form-input" placeholder="John Doe" required>
+                    <div class="error-msg" id="nameError">Name is required</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">Email Address</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="john@example.com" required>
+                    <div class="error-msg" id="emailError">Please enter a valid email format</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Password</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Min. 6 characters" required>
+                    <div class="error-msg" id="passwordError">Password must be at least 6 characters</div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+            </form>
+            <p class="text-center mt-1" style="font-size: 0.9rem;">
+                Already have an account? <a href="login.html">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="glass-card modal-content">
+            <i class="fa-solid fa-circle-check" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+            <h3>Registration Successful!</h3>
+            <p>You can now log in to your dashboard.</p>
+            <a href="login.html" class="btn btn-primary mt-1">Go to Login</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
