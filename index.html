@@ -3,82 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Study Timer</title>
+    <title>Smart Study Timer - Elevate Your Focus</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <nav>
-        <div class="nav-brand">
-            <i class="fa-solid fa-stopwatch"></i>
+<body style="background: radial-gradient(circle at 10% 20%, hsla(245, 82%, 60%, 0.05), transparent 50%), radial-gradient(circle at 90% 80%, hsla(280, 75%, 60%, 0.05), transparent 50%);">
+    <!-- Navigation Bar -->
+    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2.5rem; background: var(--card-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--card-border); sticky: top; z-index: 100;">
+        <div class="sidebar-logo" style="margin: 0; padding: 0;">
+            <i class="fa-solid fa-stopwatch-20"></i>
             <span>SmartTimer</span>
         </div>
-        <div class="nav-links">
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+        <div class="nav-links" style="display: flex; gap: 1rem; align-items: center;">
+            <button class="btn-icon" id="themeToggle" aria-label="Toggle Theme" style="width: 40px; height: 40px;">
                 <i class="fa-solid fa-moon"></i>
             </button>
-            <a href="login.html" class="btn btn-outline">Login</a>
-            <a href="register.html" class="btn btn-primary">Sign Up</a>
+            <a href="login.html" class="btn btn-outline" style="padding: 0.5rem 1.2rem; border-radius: 10px; font-size: 0.9rem;">Login</a>
+            <a href="register.html" class="btn btn-primary" style="padding: 0.5rem 1.2rem; border-radius: 10px; font-size: 0.9rem;">Sign Up</a>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="timer-container">
-            <div class="timer-modes">
+    <!-- Hero Section -->
+    <div class="container" style="max-width: 1100px; padding: 4rem 2rem 2rem; text-align: center;">
+        <div style="max-width: 800px; margin: 0 auto 3rem;">
+            <span style="background: hsla(245, 82%, 60%, 0.1); color: var(--primary-color); padding: 0.4rem 1rem; border-radius: 99px; font-size: 0.85rem; font-weight: 700; display: inline-block; margin-bottom: 1rem;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Augmented Study Environment
+            </span>
+            <h1 style="font-size: 3.5rem; line-height: 1.2; font-weight: 800; font-family: var(--font-heading); margin-bottom: 1rem;">
+                Study Smarter with <span style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI-Driven Focus</span>
+            </h1>
+            <p style="font-size: 1.15rem; color: var(--text-muted); margin-bottom: 2rem;">
+                An interactive Pomodoro workspace combined with a custom calendar, smart distraction shielding, automated timetable generation, and built-in AI tutors.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="register.html" class="btn btn-primary btn-lg" style="padding: 0.9rem 1.8rem; border-radius: 14px;"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
+                <a href="login.html" class="btn btn-outline btn-lg" style="padding: 0.9rem 1.8rem; border-radius: 14px;"><i class="fa-solid fa-door-open"></i> Access Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Quick Demo Timer -->
+        <div class="glass-card text-center" style="max-width: 480px; margin: 0 auto 4rem; padding: 2.5rem; position: relative;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Try the Focus Timer</h3>
+            
+            <div class="timer-modes" style="margin-bottom: 1.5rem;">
                 <button class="timer-mode-btn active" data-mode="pomodoro">Pomodoro</button>
                 <button class="timer-mode-btn" data-mode="shortBreak">Short Break</button>
                 <button class="timer-mode-btn" data-mode="longBreak">Long Break</button>
-                <button class="btn btn-outline" id="settingsBtn" style="padding: 0.4rem 0.6rem; margin-left: auto;" title="Timer Settings"><i class="fa-solid fa-gear"></i></button>
+                <button class="btn-icon" id="settingsBtn" style="width: 34px; height: 34px; margin-left: 0.25rem;"><i class="fa-solid fa-gear" style="font-size: 0.85rem;"></i></button>
             </div>
 
-            <div class="circular-progress" id="progressCircle">
-                <div class="time-display" id="timeDisplay">25:00</div>
+            <div class="circular-progress" id="progressCircle" style="width: 200px; height: 200px; margin-bottom: 1.5rem;">
+                <div class="time-display" id="timeDisplay" style="font-size: 3rem;">25:00</div>
             </div>
 
-            <div class="timer-controls">
+            <div class="timer-controls" style="margin-bottom: 0;">
                 <button class="btn btn-primary" id="startBtn"><i class="fa-solid fa-play"></i> Start</button>
                 <button class="btn btn-outline" id="pauseBtn" style="display:none;"><i class="fa-solid fa-pause"></i> Pause</button>
-                <button class="btn btn-danger" id="resetBtn"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-            </div>
-
-            <button class="btn btn-outline mt-1" id="focusModeBtn" style="width: 100%;">
-                <i class="fa-solid fa-expand"></i> Enter Focus Mode
-            </button>
-
-            <div class="quote-display" id="quoteDisplay">
-                "Stay focused, ignore the distractions, and you will accomplish your goals much faster."
+                <button class="btn btn-icon" id="resetBtn"><i class="fa-solid fa-rotate-right"></i></button>
             </div>
         </div>
 
-        <div class="ai-suggestions glass-card">
-            <div class="ai-header">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Suggestion
+        <!-- Features Grid -->
+        <div style="margin-top: 2rem;">
+            <h2 style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-heading); margin-bottom: 2.5rem;">19 Features Built for High Achievers</h2>
+            
+            <div class="grid-cols-12" style="gap: 1.5rem; text-align: left;">
+                <div class="col-span-4 glass-card" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-calendar-check" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Interactive Calendar</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Plan study blocks, schedule tasks, and track syllabus deadlines in one click.</p>
+                </div>
+                <div class="col-span-4 glass-card" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Distraction Detector</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Tab switching monitors and activity loggers safeguard your Pomodoro sessions.</p>
+                </div>
+                <div class="col-span-4 glass-card" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-robot" style="font-size: 2rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">AI Study Coach</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Diagnostic review modules give personalized suggestions based on your study history.</p>
+                </div>
+                <div class="col-span-4 glass-card" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-fire" style="font-size: 2rem; color: var(--warning-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Daily Challenges</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Unlock points and badges by finishing custom targets refreshed every day.</p>
+                </div>
+                <div class="col-span-4 glass-card" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-table-list" style="font-size: 2rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Timetable Generator</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Input hours and topics to generate a beautifully structured weekly schedule.</p>
+                </div>
+                <div class="col-span-4 glass-card" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-comments" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">AI Doubt Assistant</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Instant structured tutoring on math equations, chemistry formulas, and coding bugs.</p>
+                </div>
             </div>
-            <p id="aiText">Loading suggestion...</p>
         </div>
+    </div>
 
-        <!-- Settings Modal -->
-        <div class="modal" id="settingsModal">
-            <div class="modal-content glass-card">
-                <div class="modal-header">
-                    <h3>Timer Settings</h3>
-                    <button class="close-modal" id="closeSettingsBtn"><i class="fa-solid fa-xmark"></i></button>
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>Timer Settings</h3>
+                <button class="close-modal" id="closeSettingsBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label class="form-label">Pomodoro (minutes)</label>
+                    <input type="number" id="pomodoroSetting" class="form-input" min="1" value="25">
                 </div>
-                <div class="settings-form">
-                    <div class="form-group">
-                        <label for="pomodoroSetting">Pomodoro (minutes)</label>
-                        <input type="number" id="pomodoroSetting" class="form-input" min="1" value="25">
-                    </div>
-                    <div class="form-group">
-                        <label for="shortBreakSetting">Short Break (minutes)</label>
-                        <input type="number" id="shortBreakSetting" class="form-input" min="1" value="5">
-                    </div>
-                    <div class="form-group">
-                        <label for="longBreakSetting">Long Break (minutes)</label>
-                        <input type="number" id="longBreakSetting" class="form-input" min="1" value="15">
-                    </div>
-                    <button class="btn btn-primary mt-1" id="saveSettingsBtn" style="width: 100%;">Save Changes</button>
+                <div class="form-group">
+                    <label class="form-label">Short Break (minutes)</label>
+                    <input type="number" id="shortBreakSetting" class="form-input" min="1" value="5">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Long Break (minutes)</label>
+                    <input type="number" id="longBreakSetting" class="form-input" min="1" value="15">
+                </div>
+                <button class="btn btn-primary w-full mt-1" id="saveSettingsBtn">Save Settings</button>
             </div>
         </div>
     </div>

@@ -10,174 +10,497 @@
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
-    <nav>
-        <div class="nav-brand">
-            <i class="fa-solid fa-stopwatch"></i>
-            <a href="index.html" style="color: inherit; text-decoration: none;"><span>SmartTimer</span></a>
-        </div>
-        <div class="nav-links">
-            <span id="welcomeMsg" style="font-weight: 500;"></span>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
-                <i class="fa-solid fa-moon"></i>
-            </button>
-            <button class="btn btn-outline" id="logoutBtn">Logout</button>
-        </div>
-    </nav>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-stopwatch-20"></i>
+                <span>SmartTimer</span>
+            </div>
 
-    <div class="container">
-        <!-- Main Dashboard Layout -->
-        <div class="grid grid-cols-3">
-            
-            <!-- Left Column: Timer & Controls -->
-            <div class="glass-card flex-col" style="justify-content: flex-start; gap: 1rem;">
-                <h3 class="text-center">Study Session</h3>
-                
-                <div class="timer-container" style="margin: 1rem auto;">
-                    <div class="timer-modes">
-                        <button class="timer-mode-btn active" data-mode="pomodoro">Pomodoro</button>
-                        <button class="timer-mode-btn" data-mode="shortBreak">Short Break</button>
-                        <button class="timer-mode-btn" data-mode="longBreak">Long Break</button>
-                        <button class="btn btn-outline" id="settingsBtn" style="padding: 0.4rem 0.6rem; margin-left: auto;" title="Timer Settings"><i class="fa-solid fa-gear"></i></button>
-                    </div>
-
-                    <div class="circular-progress" id="progressCircle" style="width: 200px; height: 200px;">
-                        <div class="time-display" id="timeDisplay" style="font-size: 3rem;">25:00</div>
-                    </div>
-
-                    <div class="timer-controls">
-                        <button class="btn btn-primary" id="startBtn"><i class="fa-solid fa-play"></i> Start</button>
-                        <button class="btn btn-outline" id="pauseBtn" style="display:none;"><i class="fa-solid fa-pause"></i> Pause</button>
-                        <button class="btn btn-danger" id="resetBtn"><i class="fa-solid fa-rotate-right"></i></button>
-                    </div>
-
-                    <button class="btn btn-outline mt-1" id="focusModeBtn" style="width: 100%;">
-                        <i class="fa-solid fa-expand"></i> Focus Mode
-                    </button>
+            <!-- Profile Summary -->
+            <div class="user-profile-summary">
+                <span class="user-name" id="userNameLabel">Loading User...</span>
+                <div class="user-score-row">
+                    <span>Rank: <strong id="userRankLabel" style="color: var(--accent-color);">Scholar</strong></span>
+                    <span class="user-streak" id="userStreakLabel"><i class="fa-solid fa-fire"></i> 0 days</span>
                 </div>
-                
-                <div class="flex-between mt-1">
-                    <span style="font-size: 0.9rem; font-weight: 600;">Distractions: <span id="distractionCount">0</span></span>
-                    <button class="btn btn-danger" id="logDistractionBtn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Log
-                    </button>
+                <div class="user-score-row" style="margin-top: 0.2rem;">
+                    <span>Points: <span class="user-points" id="userPointsLabel">0</span></span>
+                    <span>Level <strong id="userLevelLabel">1</strong></span>
                 </div>
             </div>
 
-            <!-- Middle Column: Stats & Gamification -->
-            <div class="flex-col" style="gap: 1.5rem;">
-                <div class="glass-card stats-card">
-                    <div class="stats-label">Productivity Score</div>
-                    <div class="stats-number" id="prodScore">0</div>
-                    <div style="font-size: 0.85rem; opacity: 0.8;">Points earned this week</div>
-                </div>
-                
-                <div class="glass-card">
-                    <h3>Analytics</h3>
-                    <div style="height: 200px; position: relative;">
-                        <canvas id="analyticsChart"></canvas>
-                    </div>
-                </div>
+            <!-- Nav Links -->
+            <nav class="sidebar-nav">
+                <div class="nav-link active" data-tab="timer"><i class="fa-solid fa-clock"></i> <span>Focus Timer</span></div>
+                <div class="nav-link" data-tab="planner"><i class="fa-solid fa-calendar-days"></i> <span>Planner & Calendar</span></div>
+                <div class="nav-link" data-tab="analytics"><i class="fa-solid fa-chart-simple"></i> <span>Analytics & Heatmap</span></div>
+                <div class="nav-link" data-tab="gamification"><i class="fa-solid fa-award"></i> <span>Challenges & Badges</span></div>
+                <div class="nav-link" data-tab="ai"><i class="fa-solid fa-robot"></i> <span>AI Study Hub</span></div>
+                <div class="nav-link" data-tab="voice"><i class="fa-solid fa-users-viewfinder"></i> <span>Voice Room</span></div>
+            </nav>
 
-                <div class="glass-card">
-                    <h3>Badges & Streaks</h3>
-                    <div class="badges-container" id="badgesContainer">
-                        <div class="badge" id="badge3Day"><i class="fa-solid fa-fire"></i> 3-Day Streak</div>
-                        <div class="badge" id="badge7Day"><i class="fa-solid fa-crown"></i> 7-Day Streak</div>
-                    </div>
-                </div>
+            <div class="sidebar-footer">
+                <button class="nav-link" id="themeToggle" style="width: 100%; border: 1px solid var(--card-border);">
+                    <i class="fa-solid fa-moon"></i> <span>Toggle Theme</span>
+                </button>
+                <button class="btn btn-danger w-full" id="logoutBtn" style="padding: 0.6rem;">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+                </button>
+            </div>
+        </aside>
 
-                <div class="glass-card">
-                    <h3>Study Planner</h3>
-                    <div class="flex-col" style="gap: 0.5rem;">
-                        <input type="text" id="plannerSubject" class="form-input" placeholder="Subject (e.g. Math)">
-                        <input type="number" id="plannerHours" class="form-input" placeholder="Hours (e.g. 2)" min="0.5" step="0.5">
-                        <button class="btn btn-primary" id="generatePlanBtn" style="width: 100%;"><i class="fa-solid fa-calendar-days"></i> Generate Timetable</button>
-                    </div>
-                    <div class="timetable-container mt-1" id="timetableContainer" style="display: none; max-height: 200px; overflow-y: auto;">
-                        <!-- Generated timetable items go here -->
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-navbar">
+                <div class="page-title">
+                    <h2 id="pageTitle">Focus Timer</h2>
+                    <p id="pageSubtitle">Maximize your concentration with the Pomodoro technique</p>
+                </div>
+                <div class="nav-actions">
+                    <div class="glass-card" style="padding: 0.5rem 1rem; border-radius: 12px; font-weight: 700; color: var(--warning-color); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-bolt"></i> Streak: <span id="headerStreakVal">0</span> days
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Goals, AI & Group -->
-            <div class="flex-col" style="gap: 1.5rem;">
-                <div class="glass-card">
-                    <h3>Daily Goals</h3>
-                    <div class="flex-between mb-1">
-                        <input type="text" id="goalInput" class="form-input" placeholder="Add new goal..." style="margin-right: 0.5rem;">
-                        <button class="btn btn-primary" id="addGoalBtn"><i class="fa-solid fa-plus"></i></button>
+            <!-- ================= TAB 1: TIMER ================= -->
+            <section class="tab-content active" id="tab-timer">
+                <div class="grid-cols-12">
+                    <!-- Left: Main Timer -->
+                    <div class="col-span-8 glass-card text-center" style="display: flex; flex-direction: column; justify-content: center; min-height: 480px;">
+                        <div class="timer-modes">
+                            <button class="timer-mode-btn active" data-mode="pomodoro">Pomodoro</button>
+                            <button class="timer-mode-btn" data-mode="shortBreak">Short Break</button>
+                            <button class="timer-mode-btn" data-mode="longBreak">Long Break</button>
+                            <button class="btn-icon" id="settingsBtn" style="margin-left: 0.5rem;" title="Timer Settings"><i class="fa-solid fa-gear"></i></button>
+                        </div>
+
+                        <div class="circular-progress" id="progressCircle">
+                            <div class="time-display" id="timeDisplay">25:00</div>
+                        </div>
+
+                        <div class="timer-controls">
+                            <button class="btn btn-primary btn-lg" id="startBtn" style="padding: 1rem 2rem; border-radius: 16px;"><i class="fa-solid fa-play"></i> Start Session</button>
+                            <button class="btn btn-outline btn-lg" id="pauseBtn" style="display:none; padding: 1rem 2rem; border-radius: 16px;"><i class="fa-solid fa-pause"></i> Pause</button>
+                            <button class="btn btn-icon" id="resetBtn" title="Reset"><i class="fa-solid fa-rotate-right"></i></button>
+                        </div>
+
+                        <button class="btn btn-outline" id="focusModeBtn" style="max-width: 320px; margin: 0 auto;">
+                            <i class="fa-solid fa-expand"></i> Enter Immersive Focus Mode
+                        </button>
                     </div>
-                    <ul class="goal-list" id="goalList">
-                        <!-- Goals inserted by JS -->
-                    </ul>
+
+                    <!-- Right: Ambient Sounds & Distraction Log -->
+                    <div class="col-span-4 flex-col" style="gap: 1.5rem;">
+                        <!-- Ambient Sounds Mixer -->
+                        <div class="glass-card">
+                            <h3 class="mb-1">Ambient Atmosphere</h3>
+                            <div class="ambient-mixer">
+                                <div class="ambient-sound-row">
+                                    <div class="ambient-sound-info">
+                                        <i class="fa-solid fa-brain"></i> Alpha Waves (Binaural)
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="range" class="volume-slider" data-sound="rain" min="0" max="1" step="0.1" value="0.5">
+                                        <button class="sound-toggle-btn" data-sound="rain"><i class="fa-solid fa-circle-play"></i></button>
+                                    </div>
+                                </div>
+                                <div class="ambient-sound-row">
+                                    <div class="ambient-sound-info">
+                                        <i class="fa-solid fa-music"></i> Lo-Fi Study Beats
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="range" class="volume-slider" data-sound="lofi" min="0" max="1" step="0.1" value="0.5">
+                                        <button class="sound-toggle-btn" data-sound="lofi"><i class="fa-solid fa-circle-play"></i></button>
+                                    </div>
+                                </div>
+                                <div class="ambient-sound-row">
+                                    <div class="ambient-sound-info">
+                                        <i class="fa-solid fa-spa"></i> Zen Garden Pads
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="range" class="volume-slider" data-sound="forest" min="0" max="1" step="0.1" value="0.5">
+                                        <button class="sound-toggle-btn" data-sound="forest"><i class="fa-solid fa-circle-play"></i></button>
+                                    </div>
+                                </div>
+                                <div class="ambient-sound-row">
+                                    <div class="ambient-sound-info">
+                                        <i class="fa-solid fa-compact-disc"></i> Baroque Piano (Classical)
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="range" class="volume-slider" data-sound="cafe" min="0" max="1" step="0.1" value="0.5">
+                                        <button class="sound-toggle-btn" data-sound="cafe"><i class="fa-solid fa-circle-play"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Distraction Detector -->
+                        <div class="glass-card">
+                            <div class="flex-between mb-1">
+                                <h3>Distraction Shield</h3>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Auto Shield</span>
+                                    <input type="checkbox" id="distractionShieldToggle" checked style="cursor: pointer; width: 16px; height: 16px;">
+                                </div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">Detects if you switch tabs, lose focus, or remain idle, keeping you accountable.</p>
+                            
+                            <div class="flex-between" style="background: rgba(0,0,0,0.03); padding: 0.8rem; border-radius: 12px;">
+                                <span style="font-size: 0.9rem; font-weight: 700;">Distractions Logged:</span>
+                                <span id="sessionDistractionCount" style="color: var(--danger-color); font-weight: 800; font-size: 1.1rem;">0</span>
+                            </div>
+
+                            <div class="distraction-logs" id="distractionLogList">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </section>
 
-                <div class="ai-suggestions glass-card" style="margin-top: 0;">
-                    <div class="ai-header">
-                        <i class="fa-solid fa-robot"></i> Personalized AI
+            <!-- ================= TAB 2: PLANNER ================= -->
+            <section class="tab-content" id="tab-planner">
+                <div class="grid-cols-12">
+                    <!-- Left: Interactive Calendar -->
+                    <div class="col-span-8 glass-card">
+                        <div class="calendar-header">
+                            <h3 id="calendarMonthYear">June 2026</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-icon" id="prevMonthBtn" style="width: 36px; height: 36px;"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button class="btn-icon" id="nextMonthBtn" style="width: 36px; height: 36px;"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Filled dynamically by JavaScript -->
+                        </div>
                     </div>
-                    <p id="aiText">Analyzing your study patterns...</p>
+
+                    <!-- Right: Timetable & Goals -->
+                    <div class="col-span-4 flex-col" style="gap: 1.5rem;">
+                        <!-- Timetable Generator -->
+                        <div class="glass-card">
+                            <h3>Smart Generator</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem;">Generate optimized study blocks that push directly to your schedule.</p>
+                            <div class="flex-col" style="gap: 0.8rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Subject Title</label>
+                                    <input type="text" id="timetableSubject" class="form-input" placeholder="e.g. Physics, Coding">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Duration (Hours)</label>
+                                    <input type="number" id="timetableHours" class="form-input" min="0.5" max="8" step="0.5" value="2">
+                                </div>
+                                <button class="btn btn-primary" id="generateTimetableBtn" style="width:100%;"><i class="fa-solid fa-calendar-plus"></i> Generate & Schedule</button>
+                            </div>
+                            
+                            <div class="timetable-container mt-1" id="timetableBlockContainer" style="display: none; max-height: 180px; overflow-y: auto;">
+                                <!-- Blocks shown here -->
+                            </div>
+                        </div>
+
+                        <!-- Goals Manager -->
+                        <div class="glass-card">
+                            <h3>Focus Goals</h3>
+                            <div class="flex-between mb-1" style="gap: 0.5rem;">
+                                <input type="text" id="newGoalInput" class="form-input" placeholder="Add study target..." style="padding: 0.6rem 0.8rem; font-size: 0.9rem;">
+                                <button class="btn btn-primary" id="addNewGoalBtn" style="padding: 0.6rem 1rem;"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <ul class="goal-list" id="dashboardGoalList" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Goals go here -->
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+            </section>
 
-                <div class="glass-card">
-                    <div class="flex-between mb-1">
-                        <h3>Voice Study Room</h3>
-                        <button class="btn btn-outline" id="startVoiceBtn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; border-color: var(--success-color); color: var(--success-color);"><i class="fa-solid fa-microphone"></i> Start</button>
-                    </div>
-                    
-                    <div id="voiceRoomControls" style="display: none; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 1rem;">
-                        <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">Your Room ID: <strong id="myPeerId">Generating...</strong></p>
-                        <button class="btn btn-primary" id="inviteWhatsAppBtn" style="width: 100%; font-size: 0.85rem; background-color: #25D366; border-color: #25D366;"><i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> Invite via WhatsApp</button>
+            <!-- ================= TAB 3: ANALYTICS ================= -->
+            <section class="tab-content" id="tab-analytics">
+                <div class="grid-cols-12">
+                    <!-- Left: Analytics Graphs & Heatmap -->
+                    <div class="col-span-8 flex-col" style="gap: 1.5rem;">
+                        <!-- Main Analytics Chart -->
+                        <div class="glass-card">
+                            <h3>Focus Analytics</h3>
+                            <div style="height: 250px; position: relative; margin-top: 1rem;">
+                                <canvas id="dashboardChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Github Heatmap -->
+                        <div class="glass-card">
+                            <h3 class="mb-1">Consistency Heatmap</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Visual representation of your study sessions over the past 30 days.</p>
+                            <div class="heatmap-container">
+                                <div class="heatmap-grid" id="studyHeatmapGrid">
+                                    <!-- Dynamic heatmap cells -->
+                                </div>
+                                <div class="flex-between" style="font-size: 0.75rem; width: fit-content; gap: 0.5rem; margin: 0 auto;">
+                                    <span>Less</span>
+                                    <span class="heatmap-cell level-0" style="width: 14px; height: 14px; cursor: default;"></span>
+                                    <span class="heatmap-cell level-1" style="width: 14px; height: 14px; cursor: default;"></span>
+                                    <span class="heatmap-cell level-2" style="width: 14px; height: 14px; cursor: default;"></span>
+                                    <span class="heatmap-cell level-3" style="width: 14px; height: 14px; cursor: default;"></span>
+                                    <span class="heatmap-cell level-4" style="width: 14px; height: 14px; cursor: default;"></span>
+                                    <span>More</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex-col" style="gap: 0.5rem; margin-bottom: 1rem;">
-                        <input type="text" id="friendRoomId" class="form-input" placeholder="Enter Friend's Room ID" style="font-size: 0.85rem; padding: 0.5rem;">
-                        <button class="btn btn-primary" id="joinVoiceBtn" style="width: 100%; font-size: 0.85rem;"><i class="fa-solid fa-phone-flip"></i> Join Room</button>
-                    </div>
+                    <!-- Right: Productivity Score Indicator -->
+                    <div class="col-span-4 glass-card text-center" style="display: flex; flex-direction: column; justify-content: center; min-height: 400px;">
+                        <h3 class="mb-1">Productivity Score</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2rem;">Computed live from your focus time, goals hit, and distraction limits.</p>
+                        
+                        <div class="gauge-container">
+                            <svg class="gauge-svg" width="160" height="160" viewBox="0 0 160 160">
+                                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                                <circle class="gauge-fill" id="productivityGaugeFill" cx="80" cy="80" r="70"></circle>
+                            </svg>
+                            <div class="gauge-value" id="productivityScoreValue">0%</div>
+                        </div>
 
-                    <ul class="user-list" id="groupStudyList">
-                        <li class="user-item">
-                            <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
-                            <div style="flex: 1;">You</div>
-                            <div class="user-status" id="myVoiceStatus" style="background: #ccc;"></div>
-                        </li>
-                    </ul>
-                    
-                    <audio id="remoteAudio" autoplay></audio>
+                        <div style="margin-top: 1rem;">
+                            <h4 id="productivityEvaluationTitle" style="color: var(--primary-color);">Analyzing...</h4>
+                            <p id="productivityEvaluationText" style="font-size: 0.85rem; color: var(--text-muted); margin: 0.5rem 0 0;">Complete Pomodoro sessions and check off tasks to raise your score.</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-        </div>
+            <!-- ================= TAB 4: GAMIFICATION ================= -->
+            <section class="tab-content" id="tab-gamification">
+                <div class="grid-cols-12">
+                    <!-- Left: Challenges & Badges -->
+                    <div class="col-span-8 flex-col" style="gap: 1.5rem;">
+                        <!-- Challenges Card -->
+                        <div class="glass-card">
+                            <h3 class="mb-1">Daily Challenges</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Complete these tasks today to secure major bonus points.</p>
+                            <div class="challenges-list" id="challengesContainer">
+                                <!-- Dynamic check items -->
+                            </div>
+                        </div>
 
-        <!-- Settings Modal -->
-        <div class="modal" id="settingsModal">
-            <div class="modal-content glass-card">
-                <div class="modal-header">
-                    <h3>Timer Settings</h3>
-                    <button class="close-modal" id="closeSettingsBtn"><i class="fa-solid fa-xmark"></i></button>
+                        <!-- Badges Cabinet -->
+                        <div class="glass-card">
+                            <h3 class="mb-1">Academic Achievements</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Collect and unlock these milestone badges as you study.</p>
+                            <div class="badges-showcase">
+                                <div class="badge-slot" id="achievement-first-session">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                    <div class="badge-name">First Step</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem;">Complete 1 session</div>
+                                </div>
+                                <div class="badge-slot" id="achievement-streak-3">
+                                    <i class="fa-solid fa-fire-flame-curved"></i>
+                                    <div class="badge-name">Habit Builder</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem;">Reach 3-day streak</div>
+                                </div>
+                                <div class="badge-slot" id="achievement-streak-7">
+                                    <i class="fa-solid fa-crown"></i>
+                                    <div class="badge-name">Unstoppable</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem;">Reach 7-day streak</div>
+                                </div>
+                                <div class="badge-slot" id="achievement-shield-pro">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                    <div class="badge-name">Laser Focus</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem;">Study with 0 warnings</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Social Leaderboard -->
+                    <div class="col-span-4 glass-card">
+                        <h3 class="mb-1">Study Leaderboard</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Compare your focus points with other students in your session.</p>
+                        <div class="leaderboard-table" id="leaderboardList">
+                            <!-- Filled dynamically by JS -->
+                        </div>
+                    </div>
                 </div>
-                <div class="settings-form">
-                    <div class="form-group">
-                        <label for="pomodoroSetting">Pomodoro (minutes)</label>
-                        <input type="number" id="pomodoroSetting" class="form-input" min="1" value="25">
-                    </div>
-                    <div class="form-group">
-                        <label for="shortBreakSetting">Short Break (minutes)</label>
-                        <input type="number" id="shortBreakSetting" class="form-input" min="1" value="5">
-                    </div>
-                    <div class="form-group">
-                        <label for="longBreakSetting">Long Break (minutes)</label>
-                        <input type="number" id="longBreakSetting" class="form-input" min="1" value="15">
-                    </div>
-                    <button class="btn btn-primary mt-1" id="saveSettingsBtn" style="width: 100%;">Save Changes</button>
-                </div>
-            </div>
-        </div>
+            </section>
 
+            <!-- ================= TAB 5: AI CENTRE ================= -->
+            <section class="tab-content" id="tab-ai">
+                <div class="grid-cols-12">
+                    <!-- Left: AI Doubt Assistant -->
+                    <div class="col-span-6 glass-card" style="display: flex; flex-direction: column;">
+                        <div class="flex-between mb-1">
+                            <h3>AI Doubt Assistant</h3>
+                            <span style="font-size: 0.75rem; background: var(--success-bg); color: var(--success-color); font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 99px;">Tutor Online</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Ask study questions, request step-by-step guides, or generate quiz problems.</p>
+                        
+                        <div class="prompt-chips">
+                            <span class="prompt-chip" data-prompt="Explain photosynthesis in simple terms">Explain Photosynthesis</span>
+                            <span class="prompt-chip" data-prompt="Solve and explain: 2x + 5 = 15">Solve Algebra</span>
+                            <span class="prompt-chip" data-prompt="Give me a practice quiz on Chemistry">Chemistry Quiz</span>
+                            <span class="prompt-chip" data-prompt="Explain JavaScript event bubbling">Event Bubbling</span>
+                        </div>
+
+                        <div class="chat-window">
+                            <div class="chat-messages" id="doubtMessages">
+                                <div class="chat-bubble ai">
+                                    Hello! I am your AI Doubt Assistant. Select one of the quick topics above or type in your math, science, or coding doubt and I will break it down for you.
+                                </div>
+                            </div>
+                            <div class="chat-input-row">
+                                <input type="text" id="doubtInput" class="form-input" placeholder="Type your doubt or question..." style="border-radius: 10px;">
+                                <button class="btn btn-primary" id="sendDoubtBtn" style="padding: 0.5rem 1rem; border-radius: 10px;"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: AI Study Coach -->
+                    <div class="col-span-6 glass-card ai-coach-card" style="display: flex; flex-direction: column; min-height: 480px;">
+                        <div class="flex-between mb-1">
+                            <h3>AI Study Coach</h3>
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-color);"></i>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Your personal mentor who analyzes study patterns and diagnoses problems.</p>
+
+                        <div class="chat-window" style="height: 380px;">
+                            <div class="chat-messages" id="coachMessages">
+                                <div class="chat-bubble ai">
+                                    Welcome to your AI coaching chamber. Tell me, how are you feeling about your studies right now? Let's check in!
+                                </div>
+                            </div>
+                            <div class="chat-input-row">
+                                <div style="display: flex; gap: 0.3rem; width: 100%;">
+                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="tired" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">😴 Tired</button>
+                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="distracted" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">📱 Distracted</button>
+                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="anxious" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">😰 Anxious</button>
+                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="focused" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">⚡ Focused</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 6: VOICE ROOM ================= -->
+            <section class="tab-content" id="tab-voice">
+                <div class="grid-cols-12">
+                    <div class="col-span-8 glass-card">
+                        <div class="flex-between mb-1">
+                            <h3>Voice study room</h3>
+                            <button class="btn btn-success" id="startVoiceBtn"><i class="fa-solid fa-microphone"></i> Start Voice Server</button>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Join a peer-to-peer room to host group focus sessions, share audio feedback, and study together.</p>
+
+                        <div id="voiceRoomControls" style="display: none; border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 16px; margin-bottom: 1.5rem; background: rgba(0,0,0,0.02);">
+                            <div class="flex-between mb-1">
+                                <div>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Your Room ID</span>
+                                    <h4 id="myPeerId" style="font-size: 1.3rem; color: var(--primary-color);">Connecting...</h4>
+                                </div>
+                                <button class="btn btn-outline" id="inviteWhatsAppBtn" style="background-color: #25D366; border-color: #25D366; color: white;"><i class="fa-brands fa-whatsapp"></i> Invite via WhatsApp</button>
+                            </div>
+                        </div>
+
+                        <div class="grid-cols-12" style="gap: 1rem;">
+                            <div class="col-span-6 form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Join Friend's Room ID</label>
+                                <input type="text" id="friendRoomId" class="form-input" placeholder="Paste room ID here...">
+                            </div>
+                            <div class="col-span-6" style="display: flex; align-items: flex-end;">
+                                <button class="btn btn-primary w-full" id="joinVoiceBtn" style="height: 45px;"><i class="fa-solid fa-phone-volume"></i> Connect to Friend</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 glass-card">
+                        <h3>Room Partners</h3>
+                        <ul class="user-list" id="groupStudyList">
+                            <li class="user-item">
+                                <div class="user-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
+                                <div style="flex: 1; font-weight: 700; font-size: 0.9rem;">You</div>
+                                <div class="user-status" id="myVoiceStatus" style="background: #ccc;"></div>
+                            </li>
+                        </ul>
+                        <audio id="remoteAudio" autoplay></audio>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    
-    <div class="quote-display" id="quoteDisplay" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); width: 80%; text-align: center; font-size: 1.5rem;">
-        "Focus on being productive instead of busy."
+
+    <!-- settings modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>Timer Parameters</h3>
+                <button class="close-modal" id="closeSettingsBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label class="form-label">Pomodoro Work Duration (minutes)</label>
+                    <input type="number" id="pomodoroSetting" class="form-input" min="1" max="180" value="25">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Short Break Duration (minutes)</label>
+                    <input type="number" id="shortBreakSetting" class="form-input" min="1" max="60" value="5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Long Break Duration (minutes)</label>
+                    <input type="number" id="longBreakSetting" class="form-input" min="1" max="120" value="15">
+                </div>
+                <button class="btn btn-primary w-full mt-1" id="saveSettingsBtn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- event details calendar modal -->
+    <div class="modal" id="calendarEventModal" style="z-index: 1002;">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>Schedule Study Block</h3>
+                <button class="close-modal" id="closeCalendarEventBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label class="form-label">Selected Date</label>
+                    <input type="text" id="calendarSelectedDateInput" class="form-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Event Description</label>
+                    <input type="text" id="calendarEventDescInput" class="form-input" placeholder="e.g. Physics Revision, Math Homework">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Time Block</label>
+                    <input type="time" id="calendarEventTimeInput" class="form-input" value="14:00">
+                </div>
+                <button class="btn btn-primary w-full mt-1" id="saveCalendarEventBtn">Add Event</button>
+                <div style="margin-top: 1rem; border-top: 1px solid var(--card-border); padding-top: 0.8rem;">
+                    <h4 class="mb-1" style="font-size: 0.9rem;">Scheduled for this day:</h4>
+                    <div id="dayEventsList" style="max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem;">
+                        <!-- Events loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN IMMERSIVE FOCUS MODE -->
+    <div class="fullscreen-focus-overlay" id="fullscreenFocusOverlay">
+        <button class="btn btn-outline" id="exitFocusModeBtn" style="position: absolute; top: 2rem; left: 2rem; border-color: rgba(255,255,255,0.4); color: white;">
+            <i class="fa-solid fa-compress"></i> Exit Focus Mode
+        </button>
+
+        <div class="focus-breathing-circle">
+            <div class="focus-timer-digital" id="focusDigitalDisplay">25:00</div>
+        </div>
+
+        <div class="text-center">
+            <h3 id="focusActiveSubject">Focusing Session</h3>
+            <p class="focus-instruction" id="focusBreathingInstruction">Inhale slowly...</p>
+        </div>
     </div>
 
     <script src="script.js"></script>

@@ -7,38 +7,41 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <nav>
-        <div class="nav-brand">
-            <i class="fa-solid fa-stopwatch"></i>
-            <a href="index.html" style="color: inherit; text-decoration: none;"><span>SmartTimer</span></a>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: radial-gradient(circle at top right, hsla(245, 82%, 60%, 0.08), transparent 40%), radial-gradient(circle at bottom left, hsla(280, 75%, 60%, 0.08), transparent 40%); padding: 1.5rem;">
+    
+    <div class="glass-card" style="width: 100%; max-width: 440px; padding: 2.5rem; text-align: left;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 2rem; font-weight: 800; font-family: var(--font-heading); color: var(--primary-color); margin-bottom: 2rem;">
+            <i class="fa-solid fa-stopwatch-20" style="filter: drop-shadow(0 0 8px var(--primary-glow));"></i>
+            <span>SmartTimer</span>
         </div>
-        <div class="nav-links">
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
-                <i class="fa-solid fa-moon"></i>
+        
+        <h2 style="font-size: 1.75rem; text-align: center; margin-bottom: 0.5rem;">Welcome Back</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Log in to access your planner, calendar, and study stats.</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="loginEmail">Email Address</label>
+                <input type="email" id="loginEmail" class="form-input" placeholder="john@example.com" required>
+                <div class="error-msg" id="loginEmailError">User email not registered. Please sign up first.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                <div class="error-msg" id="loginPasswordError">Incorrect password. Please try again.</div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full" style="padding: 0.9rem; margin-top: 1rem; border-radius: 12px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Login Account
             </button>
-            <a href="register.html" class="btn btn-primary">Sign Up</a>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="auth-container glass-card">
-            <h2 class="text-center mb-2">Welcome Back</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label" for="loginEmail">Email Address</label>
-                    <input type="email" id="loginEmail" class="form-input" placeholder="john@example.com" required>
-                    <div class="error-msg" id="loginEmailError">User not found, please register.</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
-                    <div class="error-msg" id="loginPasswordError">Incorrect password.</div>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-            </form>
-            <p class="text-center mt-1" style="font-size: 0.9rem;">
-                Don't have an account? <a href="register.html">Sign up here</a>
+        </form>
+        
+        <div style="text-align: center; margin-top: 1.5rem; border-top: 1px solid var(--card-border); padding-top: 1.25rem;">
+            <p style="font-size: 0.9rem; color: var(--text-muted);">
+                Don't have an account? <a href="register.html" style="font-weight: 600;">Sign up here</a>
+            </p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                <a href="index.html"><i class="fa-solid fa-chevron-left" style="font-size: 0.75rem;"></i> Back to Home</a>
             </p>
         </div>
     </div>
