@@ -37,7 +37,6 @@
                 <div class="nav-link" data-tab="planner"><i class="fa-solid fa-calendar-days"></i> <span>Planner & Calendar</span></div>
                 <div class="nav-link" data-tab="analytics"><i class="fa-solid fa-chart-simple"></i> <span>Analytics & Heatmap</span></div>
                 <div class="nav-link" data-tab="gamification"><i class="fa-solid fa-award"></i> <span>Challenges & Badges</span></div>
-                <div class="nav-link" data-tab="ai"><i class="fa-solid fa-robot"></i> <span>AI Study Hub</span></div>
                 <div class="nav-link" data-tab="voice"><i class="fa-solid fa-users-viewfinder"></i> <span>Voice Room</span></div>
             </nav>
 
@@ -185,14 +184,24 @@
                         <div class="glass-card">
                             <h3>Smart Generator</h3>
                             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem;">Generate optimized study blocks that push directly to your schedule.</p>
-                            <div class="flex-col" style="gap: 0.8rem;">
+                             <div class="flex-col" style="gap: 0.8rem;">
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Subject Title</label>
                                     <input type="text" id="timetableSubject" class="form-input" placeholder="e.g. Physics, Coding">
                                 </div>
+                                <div class="grid-cols-12" style="gap: 0.5rem; margin-bottom: 0;">
+                                    <div class="col-span-6 form-group" style="margin-bottom: 0;">
+                                        <label class="form-label">Duration (Hours)</label>
+                                        <input type="number" id="timetableHours" class="form-input" min="0.5" max="24" step="0.5" value="2">
+                                    </div>
+                                    <div class="col-span-6 form-group" style="margin-bottom: 0;">
+                                        <label class="form-label">Break (Mins)</label>
+                                        <input type="number" id="timetableBreakMins" class="form-input" min="0" max="120" step="5" value="15">
+                                    </div>
+                                </div>
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label class="form-label">Duration (Hours)</label>
-                                    <input type="number" id="timetableHours" class="form-input" min="0.5" max="8" step="0.5" value="2">
+                                    <label class="form-label">Study Interval (Mins)</label>
+                                    <input type="number" id="timetableSessionMins" class="form-input" min="15" max="180" step="5" value="45">
                                 </div>
                                 <button class="btn btn-primary" id="generateTimetableBtn" style="width:100%;"><i class="fa-solid fa-calendar-plus"></i> Generate & Schedule</button>
                             </div>
@@ -326,63 +335,6 @@
                 </div>
             </section>
 
-            <!-- ================= TAB 5: AI CENTRE ================= -->
-            <section class="tab-content" id="tab-ai">
-                <div class="grid-cols-12">
-                    <!-- Left: AI Doubt Assistant -->
-                    <div class="col-span-6 glass-card" style="display: flex; flex-direction: column;">
-                        <div class="flex-between mb-1">
-                            <h3>AI Doubt Assistant</h3>
-                            <span style="font-size: 0.75rem; background: var(--success-bg); color: var(--success-color); font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 99px;">Tutor Online</span>
-                        </div>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Ask study questions, request step-by-step guides, or generate quiz problems.</p>
-                        
-                        <div class="prompt-chips">
-                            <span class="prompt-chip" data-prompt="Explain photosynthesis in simple terms">Explain Photosynthesis</span>
-                            <span class="prompt-chip" data-prompt="Solve and explain: 2x + 5 = 15">Solve Algebra</span>
-                            <span class="prompt-chip" data-prompt="Give me a practice quiz on Chemistry">Chemistry Quiz</span>
-                            <span class="prompt-chip" data-prompt="Explain JavaScript event bubbling">Event Bubbling</span>
-                        </div>
-
-                        <div class="chat-window">
-                            <div class="chat-messages" id="doubtMessages">
-                                <div class="chat-bubble ai">
-                                    Hello! I am your AI Doubt Assistant. Select one of the quick topics above or type in your math, science, or coding doubt and I will break it down for you.
-                                </div>
-                            </div>
-                            <div class="chat-input-row">
-                                <input type="text" id="doubtInput" class="form-input" placeholder="Type your doubt or question..." style="border-radius: 10px;">
-                                <button class="btn btn-primary" id="sendDoubtBtn" style="padding: 0.5rem 1rem; border-radius: 10px;"><i class="fa-solid fa-paper-plane"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right: AI Study Coach -->
-                    <div class="col-span-6 glass-card ai-coach-card" style="display: flex; flex-direction: column; min-height: 480px;">
-                        <div class="flex-between mb-1">
-                            <h3>AI Study Coach</h3>
-                            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-color);"></i>
-                        </div>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Your personal mentor who analyzes study patterns and diagnoses problems.</p>
-
-                        <div class="chat-window" style="height: 380px;">
-                            <div class="chat-messages" id="coachMessages">
-                                <div class="chat-bubble ai">
-                                    Welcome to your AI coaching chamber. Tell me, how are you feeling about your studies right now? Let's check in!
-                                </div>
-                            </div>
-                            <div class="chat-input-row">
-                                <div style="display: flex; gap: 0.3rem; width: 100%;">
-                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="tired" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">😴 Tired</button>
-                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="distracted" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">📱 Distracted</button>
-                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="anxious" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">😰 Anxious</button>
-                                    <button class="btn btn-outline coach-feeling-btn" data-feeling="focused" style="padding: 0.5rem; font-size: 0.8rem; flex: 1;">⚡ Focused</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- ================= TAB 6: VOICE ROOM ================= -->
             <section class="tab-content" id="tab-voice">

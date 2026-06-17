@@ -5,6 +5,14 @@
  * daily challenges, and AI tutor features.
  */
 
+// Apply theme immediately to prevent light flicker on slow loading
+(function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+})();
+
 // --- GLOBAL STATE ---
 let timerSettings = loadTimerSettings();
 let POMODORO_TIME = timerSettings.pomodoro * 60;
@@ -105,17 +113,36 @@ function playAlertBeep() {
 function setupTheming() {
     const themeBtn = document.getElementById('themeToggle');
     if (themeBtn) {
+        const updateIcon = (isDark) => {
+            const icon = themeBtn.querySelector('i');
+            if (icon) {
+                if (isDark) {
+                    icon.className = 'fa-solid fa-sun';
+                } else {
+                    icon.className = 'fa-solid fa-moon';
+                }
+            }
+        };
+
         const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        const isCurrentlyDark = savedTheme === 'dark';
+        if (isCurrentlyDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+        updateIcon(isCurrentlyDark);
         
         themeBtn.addEventListener('click', () => {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             if (isDark) {
                 document.documentElement.removeAttribute('data-theme');
                 localStorage.setItem('theme', 'light');
+                updateIcon(false);
             } else {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
+                updateIcon(true);
             }
             // Trigger chart update if active
             const user = JSON.parse(localStorage.getItem('currentUser'));
@@ -478,7 +505,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (path.includes('dashboard.html')) {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) {
-            window.location.href = 'login.html';
+            const urlParams = new URLSearchParams(window.location.search);
+            const room = urlParams.get('room');
+            if (room) {
+                window.location.href = `login.html?room=${room}`;
+            } else {
+                window.location.href = 'login.html';
+            }
             return;
         }
         migrateUserDataSchema(currentUser);
@@ -620,7 +653,13 @@ function setupLogin() {
         updateUserRecord(user);
         
         // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('room');
+        if (room) {
+            window.location.href = `dashboard.html?room=${room}`;
+        } else {
+            window.location.href = 'dashboard.html';
+        }
     });
 }
 
@@ -737,10 +776,34 @@ function setupTimer() {
             startBtn.style.display = 'none';
             if (pauseBtn) pauseBtn.style.display = 'inline-flex';
             
+            let tickCount = 0;
             timerInterval = setInterval(() => {
                 if (timeLeft > 0) {
                     timeLeft--;
                     updateDisplay();
+                    
+                    // Real-time focus points update (1 pt every 10s of study)
+                    if (currentMode === 'pomodoro') {
+                        tickCount++;
+                        if (tickCount % 10 === 0) {
+                            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                            if (currentUser) {
+                                currentUser.stats.points += 1;
+                                currentUser.stats.level = Math.floor(currentUser.stats.points / 500) + 1;
+                                updateUserRecord(currentUser);
+
+                                // Refresh labels in real-time
+                                const ptsLabel = document.getElementById('userPointsLabel');
+                                const lvlLabel = document.getElementById('userLevelLabel');
+                                const rnkLabel = document.getElementById('userRankLabel');
+                                if (ptsLabel) ptsLabel.textContent = currentUser.stats.points;
+                                if (lvlLabel) lvlLabel.textContent = currentUser.stats.level;
+                                if (rnkLabel) {
+                                    rnkLabel.textContent = currentUser.stats.level > 4 ? "Doctorate" : currentUser.stats.level > 2 ? "Graduate" : "Scholar";
+                                }
+                            }
+                        }
+                    }
                 } else {
                     timerComplete();
                 }
@@ -1093,11 +1156,19 @@ function createCalendarCell(year, month, day, isOtherMonth, user, isToday = fals
         } else {
             dayEvents.forEach((ev, idx) => {
                 const el = document.createElement('div');
-                el.className = 'timetable-item';
-                el.style.padding = '0.5rem';
+                const isBreak = ev.text.toLowerCase().includes('break');
+                el.className = `timetable-item ${isBreak ? 'break' : ''}`;
+                
+                const iconHtml = isBreak ? 
+                    `<div class="timetable-icon"><i class="fa-solid fa-mug-hot"></i></div>` : 
+                    `<div class="timetable-icon"><i class="fa-solid fa-calendar-day"></i></div>`;
+                
                 el.innerHTML = `
-                    <div style="font-size: 0.8rem; font-weight: 700; margin-right: 0.5rem; color: var(--primary-color);">${ev.time}</div>
-                    <div style="font-size: 0.8rem;">${ev.text}</div>
+                    ${iconHtml}
+                    <div class="timetable-details">
+                        <span class="timetable-block-time">${ev.time}</span>
+                        <span class="timetable-block-desc">${ev.text}</span>
+                    </div>
                 `;
                 eventsList.appendChild(el);
             });
@@ -1118,34 +1189,34 @@ function setupTimetableGenerator(user) {
         genBtn.addEventListener('click', () => {
             const subject = document.getElementById('timetableSubject').value.trim() || 'Focus Block';
             const hours = parseFloat(document.getElementById('timetableHours').value) || 2;
+            const breakMins = parseInt(document.getElementById('timetableBreakMins').value) || 15;
+            const sessionMins = parseInt(document.getElementById('timetableSessionMins').value) || 45;
             
             const totalMinutes = hours * 60;
             let currentMinutes = 0;
             let blocks = [];
-            let index = 0;
             let tempTime = new Date();
             
             while (currentMinutes < totalMinutes) {
                 // Focus block
-                const pDur = timerSettings.pomodoro;
                 blocks.push({
                     type: 'focus',
                     desc: `${subject} (Focus Block)`,
-                    duration: pDur
+                    duration: sessionMins
                 });
-                currentMinutes += pDur;
-                index++;
+                currentMinutes += sessionMins;
                 
                 if (currentMinutes >= totalMinutes) break;
                 
                 // Break block
-                const bDur = (index % 4 === 0) ? timerSettings.longBreak : timerSettings.shortBreak;
-                blocks.push({
-                    type: 'break',
-                    desc: 'Rest Break',
-                    duration: bDur
-                });
-                currentMinutes += bDur;
+                if (breakMins > 0) {
+                    blocks.push({
+                        type: 'break',
+                        desc: 'Rest Break',
+                        duration: breakMins
+                    });
+                    currentMinutes += breakMins;
+                }
             }
 
             // Push events to Calendar DB
@@ -1164,12 +1235,20 @@ function setupTimetableGenerator(user) {
                     type: "timetable"
                 });
 
-                // Render visually in container
+                // Render visually in container using premium design classes
                 const item = document.createElement('div');
                 item.className = `timetable-item ${b.type === 'break' ? 'break' : ''}`;
+                
+                const iconHtml = b.type === 'break' ? 
+                    `<div class="timetable-icon"><i class="fa-solid fa-mug-hot"></i></div>` : 
+                    `<div class="timetable-icon"><i class="fa-solid fa-brain"></i></div>`;
+                
                 item.innerHTML = `
-                    <div class="timetable-time">${startStr} - ${endStr}</div>
-                    <div>${b.desc}</div>
+                    ${iconHtml}
+                    <div class="timetable-details">
+                        <span class="timetable-block-time">${startStr} - ${endStr}</span>
+                        <span class="timetable-block-desc">${b.desc}</span>
+                    </div>
                 `;
                 container.appendChild(item);
             });
@@ -1400,17 +1479,48 @@ function renderLeaderboard(user) {
     leaderboardPeers.forEach((p, idx) => {
         const row = document.createElement('div');
         row.className = `leaderboard-row ${p.isUser ? 'user-row' : ''}`;
+        
+        let statusText = "";
+        let statusDot = "";
+        
+        if (!p.isUser) {
+            const states = [
+                { text: "Focusing ⏱️", class: "success" },
+                { text: "Break ☕", class: "warning" },
+                { text: "Offline 📱", class: "muted" }
+            ];
+            // Stable state selector based on points
+            const stateIdx = (p.points) % states.length;
+            const state = states[stateIdx];
+            statusText = `<span style="font-size:0.75rem; color: var(--text-muted);">${state.text}</span>`;
+            
+            if (state.class === 'success') {
+                statusDot = `<div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success-color); margin-left: auto; box-shadow: 0 0 8px var(--success-color);"></div>`;
+            } else if (state.class === 'warning') {
+                statusDot = `<div style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning-color); margin-left: auto; box-shadow: 0 0 8px var(--warning-color);"></div>`;
+            } else {
+                statusDot = `<div style="width: 8px; height: 8px; border-radius: 50%; background: #ccc; margin-left: auto;"></div>`;
+            }
+        } else {
+            statusText = `<span style="font-size:0.75rem; color: var(--primary-color); font-weight: 700;">${isRunning ? 'Focusing ⏱️' : 'Ready ⚡'}</span>`;
+            statusDot = `<div style="width: 8px; height: 8px; border-radius: 50%; background: ${isRunning ? 'var(--success-color)' : 'var(--warning-color)'}; margin-left: auto; ${isRunning ? 'box-shadow: 0 0 8px var(--success-color);' : 'box-shadow: 0 0 8px var(--warning-color);'}"></div>`;
+        }
+
         row.innerHTML = `
             <div class="rank-num">#${idx + 1}</div>
             <div class="lb-avatar">${p.name[0]}</div>
-            <div class="lb-name">${p.name}</div>
-            <div class="lb-score">${p.points} pts</div>
+            <div class="lb-name" style="display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;">
+                <span style="font-weight: 700; font-size: 0.9rem;">${p.name.split(" ")[0]}</span>
+                ${statusText}
+            </div>
+            <div class="lb-score" style="margin-left: auto; margin-right: 1.25rem; font-weight: 700; font-size: 0.9rem;">${p.points} pts</div>
+            ${statusDot}
         `;
         list.appendChild(row);
     });
 }
 
-// Live simulation to increase peers stats slightly to keep competitive sense
+// Live simulation to increase peers stats slightly to keep competitive sense (every 3 seconds)
 setInterval(() => {
     if (!window.location.pathname.includes('dashboard.html')) return;
     
@@ -1418,123 +1528,14 @@ setInterval(() => {
     const randIdx = Math.floor(Math.random() * leaderboardPeers.length);
     const peer = leaderboardPeers[randIdx];
     if (peer && !peer.isUser) {
-        peer.points += Math.floor(Math.random() * 10) + 1;
-        peer.hours = parseFloat((peer.hours + 0.1).toFixed(1));
+        peer.points += Math.floor(Math.random() * 8) + 1;
+        peer.hours = parseFloat((peer.hours + 0.05).toFixed(2));
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (currentUser) renderLeaderboard(currentUser);
     }
-}, 12000);
+}, 3000);
 
-// --- 16. AI COACH & AI DOUBT ASSISTANT ---
-function setupAICenter(user) {
-    const doubtMessages = document.getElementById('doubtMessages');
-    const doubtInput = document.getElementById('doubtInput');
-    const sendDoubtBtn = document.getElementById('sendDoubtBtn');
-    const chips = document.querySelectorAll('.prompt-chip');
-    
-    const coachMessages = document.getElementById('coachMessages');
-    const feelingBtns = document.querySelectorAll('.coach-feeling-btn');
 
-    if (!doubtMessages || !coachMessages) return;
-
-    // AI Doubt Assistant response data tree
-    const doubtAnswers = {
-        "photosynthesis": "<strong>Photosynthesis</strong> is the biological process by which green plants map light energy (sunlight) into chemical energy (glucose).<br><br><strong>Key Equation:</strong><br><code>6CO₂ + 6H₂O + light ➔ C₆H₁₂O₆ + 6O₂</code><br><br><strong>Two Main Stages:</strong><br>1. <em>Light-Dependent Reactions</em>: Split water molecules and produce ATP in the thylakoid.<br>2. <em>Light-Independent Reactions (Calvin Cycle)</em>: Uses ATP and CO₂ to generate sugars in the stroma.",
-        "algebra": "Let's solve the linear equation: <strong>2x + 5 = 15</strong><br><br><strong>Step-by-Step Breakdown:</strong><br>1. Subtract 5 from both sides of the equation:<br><code>2x + 5 - 5 = 15 - 5</code><br><code>2x = 10</code><br><br>2. Divide both sides by 2:<br><code>2x / 2 = 10 / 2</code><br><code>x = 5</code><br><br><strong>Verification:</strong> <code>2(5) + 5 = 10 + 5 = 15</code>. The solution is correct!",
-        "chemistry quiz": "<strong>Chemistry practice challenge:</strong> What is the chemical formula of ozone gas?<br><br><div class='practice-box'><p>Choose the correct answer:</p><div class='practice-options'><button class='practice-option' data-correct='false'>A) O₂ (Dioxygen)</button><button class='practice-option' data-correct='true'>B) O₃ (Trioxygen / Ozone)</button><button class='practice-option' data-correct='false'>C) H₂O (Water Vapor)</button></div></div>",
-        "javascript": "In JavaScript, <strong>Event Bubbling</strong> is a phase of event propagation where an event triggers on the deepest target element first, and then bubbles up through its parents in the DOM hierarchy.<br><br><strong>Code demonstration:</strong><br><pre style='background:#f4f4f4; padding:0.5rem; border-radius:6px; font-size:0.8rem; overflow-x:auto;'><code>element.addEventListener('click', (e) => {\n  // Stop propagation if bubbling is not desired:\n  e.stopPropagation();\n});</code></pre>",
-        "default": "That is an interesting study question! Let me break it down:<br><br>In physics/science contexts, it is best to structure your solution by: 1) Listing your known variables, 2) Applying the correct mathematical formulas, and 3) Verifying the units of measurement.<br><br>Would you like me to generate a practice question on this concept?"
-    };
-
-    function appendMessage(container, text, sender = "ai") {
-        const bubble = document.createElement('div');
-        bubble.className = `chat-bubble ${sender}`;
-        bubble.innerHTML = text;
-        container.appendChild(bubble);
-        container.scrollTop = container.scrollHeight;
-
-        // Add event listener to practice options if any
-        if (container === doubtMessages) {
-            bubble.querySelectorAll('.practice-option').forEach(opt => {
-                opt.addEventListener('click', () => {
-                    const isCorrect = opt.dataset.correct === 'true';
-                    if (isCorrect) {
-                        opt.style.background = "var(--success-bg)";
-                        opt.style.borderColor = "var(--success-color)";
-                        appendMessage(doubtMessages, "Correct! Great understanding of molecular configurations. +10 focus points!", "ai");
-                        user.stats.points += 10;
-                        updateUserRecord(user);
-                        updateDashboardUI(user);
-                    } else {
-                        opt.style.background = "var(--danger-bg)";
-                        opt.style.borderColor = "var(--danger-color)";
-                        appendMessage(doubtMessages, "Incorrect. Ozone is a triatomic molecule made of three oxygen atoms (O₃). Try again!", "ai");
-                    }
-                });
-            });
-        }
-    }
-
-    // Handle Doubt Input
-    function processDoubt(query) {
-        if (!query) return;
-        appendMessage(doubtMessages, query, "user");
-        
-        setTimeout(() => {
-            const cleanQuery = query.toLowerCase();
-            let response = doubtAnswers["default"];
-            
-            for (let key in doubtAnswers) {
-                if (cleanQuery.includes(key)) {
-                    response = doubtAnswers[key];
-                    break;
-                }
-            }
-            appendMessage(doubtMessages, response, "ai");
-        }, 800);
-    }
-
-    if (sendDoubtBtn) {
-        sendDoubtBtn.addEventListener('click', () => {
-            const q = doubtInput.value.trim();
-            processDoubt(q);
-            doubtInput.value = "";
-        });
-        
-        doubtInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const q = doubtInput.value.trim();
-                processDoubt(q);
-                doubtInput.value = "";
-            }
-        });
-    }
-
-    chips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            processDoubt(chip.dataset.prompt);
-        });
-    });
-
-    // Handle Coach feelings
-    const coachResponses = {
-        "tired": "I notice you're feeling tired. 😴<br><br>Our brains lose cognitive capacity when studying fatigued. I suggest you <strong>switch to a Short Break</strong> and turn on the <strong>Forest wilderness ambient audio</strong> to rest your optic nerves.",
-        "distracted": "Distractions detected! 📱<br><br>Let's enforce boundaries. Click on <strong>'Enter Immersive Focus Mode'</strong> to hide notifications, put your phone in another room, and let's run a single clean 25-minute block.",
-        "anxious": "Anxiety is common when confronting large tasks. 😰<br><br>Let's divide the challenge. Open your <strong>Study Planner</strong>, break down your physics/math list into 3 small steps, and focus only on step 1.",
-        "focused": "Excellent flow state! ⚡<br><br>Let's lock this in. Start a Pomodoro session immediately, turn on the <strong>Lo-Fi beats</strong>, and try to study distraction-free for 50 minutes."
-    };
-
-    feelingBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const feeling = btn.dataset.feeling;
-            appendMessage(coachMessages, `I am feeling ${feeling}.`, "user");
-            
-            setTimeout(() => {
-                appendMessage(coachMessages, coachResponses[feeling], "ai");
-            }, 800);
-        });
-    });
-}
 
 // --- 17. PEERJS GROUP STUDY ROOMS ---
 function setupVoiceRoom() {
@@ -1552,8 +1553,15 @@ function setupVoiceRoom() {
 
     let peer = null;
     let localStream = null;
+    let activeCall = null;
+
+    // Detect auto-join room ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomToJoin = urlParams.get('room');
 
     function addPartnerToList(id) {
+        // Prevent duplicate partner items
+        if (document.getElementById(`peer-${id}`)) return;
         const li = document.createElement('li');
         li.className = 'user-item';
         li.id = `peer-${id}`;
@@ -1563,6 +1571,31 @@ function setupVoiceRoom() {
             <div class="user-status" style="background: var(--success-color);"></div>
         `;
         groupList.appendChild(li);
+    }
+
+    function disconnectCall() {
+        if (activeCall) {
+            try { activeCall.close(); } catch(e) {}
+            activeCall = null;
+        }
+        handleDisconnectCleanup();
+        showToast("Disconnected from voice session.", "fa-phone-slash");
+    }
+
+    function handleDisconnectCleanup() {
+        activeCall = null;
+        if (remoteAudio) {
+            remoteAudio.srcObject = null;
+        }
+        // Remove partners from list
+        const partners = groupList.querySelectorAll('li:not(:first-child)');
+        partners.forEach(p => p.remove());
+
+        if (joinBtn) {
+            joinBtn.disabled = false;
+            joinBtn.className = 'btn btn-primary w-full';
+            joinBtn.innerHTML = '<i class="fa-solid fa-phone-volume"></i> Connect to Friend';
+        }
     }
 
     startBtn.addEventListener('click', () => {
@@ -1583,14 +1616,30 @@ function setupVoiceRoom() {
                 peerIdLabel.textContent = id;
                 startBtn.style.display = 'none';
                 showToast("Voice Focus room successfully hosted.", "fa-microphone");
+
+                // Auto-join trigger
+                if (roomToJoin) {
+                    setTimeout(() => {
+                        if (joinBtn) joinBtn.click();
+                    }, 1000);
+                }
             });
 
             peer.on('call', (call) => {
+                activeCall = call;
                 call.answer(localStream);
                 call.on('stream', (rStream) => {
                     remoteAudio.srcObject = rStream;
                     addPartnerToList(call.peer);
                     showToast("Study partner connected to room.", "fa-users");
+                    
+                    if (joinBtn) {
+                        joinBtn.innerHTML = '<i class="fa-solid fa-phone-slash"></i> Disconnect';
+                        joinBtn.className = 'btn btn-danger w-full';
+                    }
+                });
+                call.on('close', () => {
+                    handleDisconnectCleanup();
                 });
             });
 
@@ -1610,13 +1659,24 @@ function setupVoiceRoom() {
     if (whatsappBtn) {
         whatsappBtn.addEventListener('click', () => {
             const id = peerIdLabel.textContent;
-            const msg = `Hey! Join my collaborative study room on SmartTimer.\n\nRoom Link ID: ${id}`;
+            
+            // Build the absolute join URL for auto-connect
+            const joinUrl = new URL(window.location.href);
+            joinUrl.searchParams.set('room', id);
+            
+            const msg = `Hey! Join my collaborative voice study session on SmartTimer.\n\nClick this link to connect: ${joinUrl.toString()}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
         });
     }
 
     if (joinBtn) {
         joinBtn.addEventListener('click', () => {
+            // If already connected, trigger disconnection
+            if (activeCall || joinBtn.classList.contains('btn-danger')) {
+                disconnectCall();
+                return;
+            }
+
             const fId = friendInput.value.trim();
             if (!fId) return alert("Please specify a friend's room ID.");
             
@@ -1643,12 +1703,36 @@ function setupVoiceRoom() {
         joinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ringing...';
         
         const call = peer.call(friendId, localStream);
+        activeCall = call;
+
         call.on('stream', (rStream) => {
             remoteAudio.srcObject = rStream;
-            joinBtn.innerHTML = '<i class="fa-solid fa-phone-slash"></i> Connected';
+            joinBtn.disabled = false;
+            joinBtn.innerHTML = '<i class="fa-solid fa-phone-slash"></i> Disconnect';
+            joinBtn.className = 'btn btn-danger w-full';
             addPartnerToList(friendId);
             showToast("Connected to Voice Study Room.", "fa-circle-check");
         });
+
+        call.on('close', () => {
+            handleDisconnectCleanup();
+        });
+
+        call.on('error', () => {
+            showToast("Failed to connect to friend.", "fa-circle-exclamation");
+            handleDisconnectCleanup();
+        });
+    }
+
+    // Auto-join trigger checks on load
+    if (roomToJoin) {
+        friendInput.value = roomToJoin;
+        showToast("Auto-joining voice study chamber...", "fa-phone-volume");
+        
+        // Auto trigger the server start
+        setTimeout(() => {
+            if (startBtn) startBtn.click();
+        }, 1500);
     }
 }
 
@@ -1669,7 +1753,6 @@ function setupDashboard(user) {
         "planner": ["Study Planner & Calendar", "Plan blocks, schedule classes, and manage goal checklists"],
         "analytics": ["Heatmap & Focus Analytics", "Track hours studied, consistency, and score metrics"],
         "gamification": ["Daily Challenges & Badges", "Complete milestones, unlock achievements, and climb ranks"],
-        "ai": ["AI Study Hub", "Consult the AI Study Coach or resolve doubts instantly"],
         "voice": ["Voice Study Chamber", "Host peer focus rooms with real-time audio check-ins"]
     };
 
@@ -1700,7 +1783,6 @@ function setupDashboard(user) {
     setupCalendar(user);
     setupTimetableGenerator(user);
     setupGoalsTracker(user);
-    setupAICenter(user);
     setupVoiceRoom();
     
     // UI draws
